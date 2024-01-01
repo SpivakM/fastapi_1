@@ -1,17 +1,22 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import Integer, String
-from sqlalchemy.orm import Mapped
+from sqlalchemy import String, ForeignKey
+from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
 
 from database import Base
 
 
-class User(Base):
+class BaseInfoMixin:
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    notes: Mapped[Optional[str]]
+
+
+class User(BaseInfoMixin, Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
     login: Mapped[str] = mapped_column(String(30), unique=True, index=True)
     password: Mapped[str]
@@ -19,11 +24,21 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     age: Mapped[int]
     money: Mapped[int] = mapped_column(default=0)
-    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    notes: Mapped[Optional[str]]
+
+    orders = relationship('Order', back_populates='user')
 
     def __repr__(self) -> str:
         return f'User {self.name} -> #{self.id}'
+
+
+class Order(BaseInfoMixin, Base):
+    __tablename__ = 'orders'
+
+    quantity: Mapped[int]
+    price: Mapped[float]
+    customer: Mapped[int] = mapped_column(ForeignKey('users.id'))
+
+    user = relationship('User', back_populates='orders')
 
 
 class Address(Base):
