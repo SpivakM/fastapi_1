@@ -111,7 +111,7 @@ async def get_order_by_id(order_id: int) -> User | None:
     async with async_session_maker() as session:
         query = select(Order).filter_by(id=order_id)
         result = await session.execute(query)
-        # print(result.scalar_one_or_none())
+        print(result.scalar_one_or_none().__dict__)
         return result.scalar_one_or_none()
 
 
@@ -122,8 +122,7 @@ async def update_order(order_id: int, values: dict):
         query = update(Order).where(Order.id == order_id).values(**values)
         result = await session.execute(query)
         await session.commit()
-        # print(tuple(result))
-        # print(query)
+        print(query)
 
 
 async def delete_order(order_id: int):
@@ -156,9 +155,9 @@ async def main():
         #  customer=1,
         # )
         # fetch_orders()
-        # get_order_by_id(1)
-        # update_order(1, {'quantity': 7, 'price': 65})
-        # delete_order(1)
+        # get_order_by_id(4)
+        # update_order(4, {'quantity': 7, 'price': 65})
+        delete_order(4)
     )
 
 
